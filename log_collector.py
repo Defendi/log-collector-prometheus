@@ -1,14 +1,25 @@
-from prometheus_client import start_http_server, Summary
+from prometheus_client import start_http_server, Info
 import random
 import time
+import subprocess
+import select
+
+FILENAME='/var/log/odoo/odoo-server.log'
+VLTIMER=1
 
 # Create a metric to track time spent and requests made.
-REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+INFO_LOG = Info('nifi_logs_application', 'Envio dos logs do Nifi para o prometheus')
+
+#
+f = subprocess.Popen(['tail','-F',FILENAME], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+p = select.poll()
+p.register(f.stdout)
+
 
 # Decorate function with metric.
-@REQUEST_TIME.time()
 def process_request(t):
-    """A dummy function that takes some time."""
+    if p.poll(1):
+        INFO_LOG.Info(f.stdout.readline())
     time.sleep(t)
 
 if __name__ == '__main__':
@@ -16,4 +27,4 @@ if __name__ == '__main__':
     start_http_server(19994)
     # Generate some requests.
     while True:
-        process_request(random.random())
+        process_request(VLTIMER)
