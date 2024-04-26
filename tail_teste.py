@@ -1,43 +1,44 @@
 import time
-import subprocess
-import select
+from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
+from prometheus_client import start_http_server
+import requests
+import json
 
-filename = '/var/log/odoo/odoo-server.log'
+class CustomCollector(object):
+    def __init__(self):
+        pass
 
-var = 
-
-lines = []
-
-
-with open(filename, 'r') as arquivo:
-    for linha in arquivo:
-        chavein = linha.find('[')
-        chaveout = linha.find(']',start=chavein)
-        levelout = a.find(' ', 24)
-        operin = levelout + 1
-        operout = a.find(' ', operin)
-        
-        line = {
-            'Date': linha[0:10],
-            'Time': linha[11:23],
-            'Level': linha[24:levelout],
-            'type': linha[chavein+1:chaveout],
-            'operation': linha[operin,operout]
-            'text': linha[operout+1:]
+    def collect(self):
+        # response = requests.get('https://api.test.com/v1/data', auth= ('abc@gg.com', 'xxrty'))
+        d1 = {
+            "app_metric": [
+                {
+                "appname": "2024-04-25 20:22:53,116 INFO [pool-7-thread-1] o.a.n.c.r.WriteAheadFlowFileRepository Initiating checkpoint of FlowFile Repository",
+                "value": "0"
+                },
+                {
+                "appname": "2024-04-25 20:22:53,116 INFO [pool-7-thread-1] o.a.n.c.r.WriteAheadFlowFileRepository Initiating checkpoint of FlowFile Repository",
+                "value": "0"
+                },
+                {
+                "appname": "2024-04-25 20:22:53,116 INFO [pool-7-thread-1] o.a.n.c.r.WriteAheadFlowFileRepository Initiating checkpoint of FlowFile Repository",
+                "value": "0"
+                },
+                {
+                "appname": "2024-04-25 20:22:53,116 INFO [pool-7-thread-1] o.a.n.c.r.WriteAheadFlowFileRepository Initiating checkpoint of FlowFile Repository",
+                "value": "0"
+                }
+            ]
         }
-        
-        lines.append(line)
-        print(linha)
-
-f = subprocess.Popen(['tail','-F',filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-p = select.poll()
-p.register(f.stdout)
-
-while True:
-    if p.poll(1):
-        line = f.stdout.readline().decode('utf-8')
-        if line not in lines:
-            print(line)
-            lines.append(line)
-    else:
+        list_of_metrics = d1["app_metric"]
+        for key in list_of_metrics:
+            g = GaugeMetricFamily("nifi_logs_application", 'Envio dos logs do Nifi para o prometheus', labels=['logs'])
+            g.add_metric([str(key['appname'])], key['value'])
+            yield g
+        time.sleep(1)
+            
+if __name__ == '__main__':
+    start_http_server(19994)
+    REGISTRY.register(CustomCollector())
+    while True:
         time.sleep(1)
