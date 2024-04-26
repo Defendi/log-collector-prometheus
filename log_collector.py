@@ -9,16 +9,10 @@ import logging
 logging.basicConfig(filename='collector.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 # _logger = logging.getLogger('collector')
 
-
 #filename='/var/log/odoo/odoo-server.log'
 filename='/opt/nifi/nifi-current/logs/nifi-app.log'
-VLTIMER=1
 
-# Create a metric to track time spent and requests made.
-# INFO_LOG = Info('nifi_logs_application', 'Envio dos logs do Nifi para o prometheus')
-f = subprocess.Popen(['tail','-F',filename],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-p = select.poll()
-p.register(f.stdout)
+VLTIMER=1
 
 def ConvertStrToDateTime(value):
     milliseconds = int(value[-3:])
@@ -71,8 +65,8 @@ class CustomCollector(object):
     def collect(self):
         list_of_metrics = []
         DateTimeLs = ConvertStrToDateTime(self.last_line['Date']+self.last_line['Time']) 
-        while p.poll(1):
-            linha = f.stdout.readline().decode('utf-8')
+        while self.p.poll(1):
+            linha = self.f.stdout.readline().decode('utf-8')
             if str(linha).find('alexandre') > 0:
                 pass
             Linha = ConvertToDict(linha)
@@ -101,34 +95,4 @@ if __name__ == '__main__':
     REGISTRY.register(CustomCollector())
     while True:
         time.sleep(1)
-
-# # Decorate function with metric.
-# def process_request(f,last_line):
-#     DateTimeLs = ConvertStrToDateTime(last_line['Date']+last_line['Time']) 
-#     while True:
-#         linha = f.stdout.readline().decode('utf-8')
-#         Linha = ConvertToDict(linha)
-#         try:
-#             DateTimeLn = ConvertStrToDateTime(Linha['Date']+Linha['Time'])
-#             if DateTimeLn > DateTimeLs:
-#                 print(Linha)
-#                 INFO_LOG.info(Linha)
-#                 last_line = Linha
-#         except:
-#             pass
-    
-# if __name__ == '__main__':
-#     # last_line = AppendLines()
-#     # # Start log file tail
-#     # f = subprocess.Popen(['tail','-F',filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#     # # Start up the server to expose the metrics.
-#     # start_http_server(19994)
-#     # # Generate some requests.
-#     # process_request(f,last_line)
-#     start_http_server(19994)
-#     REGISTRY.register(CustomCollector())
-#     while True:
-#         time.sleep(1)
-#
-
         
