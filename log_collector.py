@@ -10,8 +10,8 @@ logging.basicConfig(filename='collector.log', filemode='w', format='%(name)s - %
 # _logger = logging.getLogger('collector')
 
 
-filename='/var/log/odoo/odoo-server.log'
-# filename='/opt/nifi/nifi-current/logs/nifi-app.log'
+#filename='/var/log/odoo/odoo-server.log'
+filename='/opt/nifi/nifi-current/logs/nifi-app.log'
 VLTIMER=1
 
 # Create a metric to track time spent and requests made.
